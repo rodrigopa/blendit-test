@@ -1,0 +1,43 @@
+networks:
+  test_network:
+
+services:
+  php-fpm:
+    hostname: php
+    restart: on-failure
+    build:
+      dockerfile: ./docker/php/Dockerfile
+      context: .
+    volumes:
+      - ./www:/var/www/html
+    networks:
+      - test_network
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - '8004:80'
+    volumes:
+      - ./www:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - test_network
+
+  mariadb:
+    image: mariadb
+    hostname: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: 123321a
+      MYSQL_DATABASE: db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: 123321a
+    volumes:
+      - test_db:/var/lib/mysql
+    ports:
+      - '7009:3306'
+    networks:
+      - test_network
+
+volumes:
+  test_db:
+
